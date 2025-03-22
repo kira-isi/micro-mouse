@@ -6,7 +6,7 @@ int main() {
     Mouse mouse;
     initMouse(&mouse);
     createNarrowPathMaze();
-    runBellmanFord(&mouse);
+    runDijkstra(&mouse);
 
     return 0;
 }

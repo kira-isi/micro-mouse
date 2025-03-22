@@ -3,20 +3,35 @@
 
 #include "../maze.h"
 #include "../mouse.h"
+#include "../utils/stack.h"
 
-void runDijkstra();
-void runAstar();
+void runDijkstra(Mouse* mouse);
+void runAstar(Mouse* mouse);
 void runWallFollower(Mouse* mouse);
-void runDfs();
+void runDFS_Target(Mouse* mouse);
+void runDFS_Explore(Mouse* mouse);
 void runFloodFill(Mouse* mouse);
-void runModifiedFloodFill();
-void runBellmanFord();
+void runModifiedFloodFill(Mouse* mouse);
+void runBellmanFord(Mouse* mouse);
 
-// Gemeinsames für Flood-Fill und Modified Flood-Fill
+// Gemeinsames
+typedef struct {
+    int x;
+    int y;
+} Coordinates;
 #define MAX_COST 255
 extern int cost[MAZE_SIZE][MAZE_SIZE];
+extern Coordinates previous[MAZE_SIZE][MAZE_SIZE];
 void printCostMatrix();
 void moveToLowestCost(Mouse* mouse);
 void setGoal();
+void turnToDirection(Mouse* mouse, int targetDir);
+int countOpenPaths(int x, int y);
+void getNextPosition(int *x, int *y, int dir);
+int getDirectionToTarget(Mouse* mouse, int targetX, int targetY);
+void reconstructPath(Stack* stack, int goalX, int goalY);
+
+//dfs
+void performBacktracking(Mouse* mouse);
 
 #endif

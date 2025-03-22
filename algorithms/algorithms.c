@@ -1,9 +1,11 @@
 #include "algorithms.h"
 #include <stdio.h>
+
 /// Datei für gemeinsam genutze Funktionen ///
 
 //Kostenmatrix wird hier gespeichert
 int cost[MAZE_SIZE][MAZE_SIZE];
+Coordinates previous[MAZE_SIZE][MAZE_SIZE];
 
 //Ziel des Labyrinths setzen
 void setGoal() {
@@ -50,18 +52,70 @@ void moveToLowestCost(Mouse* mouse) {
         }
     }
 
-    // Drehen, wenn nötig
-    if (minDir != -1 && minDir != mouse->dir) {
-        if ((mouse->dir + 1) % 4 == minDir) {
-            turnRight(mouse);
-        } else if ((mouse->dir + 3) % 4 == minDir) {
-            turnLeft(mouse);
-        } else {
-            turnRight(mouse);
-            turnRight(mouse);
-        }
+    turnToDirection(mouse, minDir);
+    moveForward(mouse);
+}
+
+void turnToDirection(Mouse* mouse, int targetDir) {
+    if (mouse->dir == targetDir) {
+        return;  // **Keine Drehung nötig, Maus schaut schon richtig**
     }
 
-    // Vorwärts bewegen
-    moveForward(mouse);
+    int rightTurns = (targetDir - mouse->dir + 4) % 4;  // Anzahl der Schritte mit `turnRight()`
+    int leftTurns = (mouse->dir - targetDir + 4) % 4;   // Anzahl der Schritte mit `turnLeft()`
+
+    if (rightTurns <= leftTurns) {  
+        for (int i = 0; i < rightTurns; i++) {
+            turnRight(mouse);
+        }
+    } else {
+        for (int i = 0; i < leftTurns; i++) {
+            turnLeft(mouse);
+        }
+    }
+}
+
+int countOpenPaths(int x, int y) {
+    int openPaths = 0;
+    for (int i = 0; i < 4; i++) {
+        if (!hasWall(x, y, i)) {  // Prüfe, ob es physisch eine offene Richtung gibt
+            openPaths++;
+        }
+    }
+    //printf("Offen in %d Richtungen\n", openPaths); //zu Testzwecken
+    return openPaths;
+}
+
+// Hilfsfunktion: Bestimmt die nächste Position basierend auf der Richtung
+void getNextPosition(int *x, int *y, int dir) {
+    switch (dir) {
+        case 0: (*y)--; break;  // Norden
+        case 1: (*x)++; break;  // Osten
+        case 2: (*y)++; break;  // Süden
+        case 3: (*x)--; break;  // Westen
+    }
+}
+
+// Hilfsfunktion: Bestimmt die Richtung zur Zielposition
+int getDirectionToTarget(Mouse* mouse, int targetX, int targetY) {
+    if (mouse->x < targetX) return 1;  // Osten
+    if (mouse->x > targetX) return 3;  // Westen
+    if (mouse->y < targetY) return 2;  // Süden
+    if (mouse->y > targetY) return 0;  // Norden
+    return mouse->dir;
+}
+
+void reconstructPath(Stack* stack, int goalX, int goalY) {
+    int x = goalX, y = goalY;
+    initStack(stack);  // Stack zurücksetzen
+
+    while (previous[x][y].x != -1 && previous[x][y].y != -1) {
+        push(stack, x, y);  // Speichere das aktuelle Feld im Stack
+
+        int prevX = previous[x][y].x;
+        int prevY = previous[x][y].y;
+
+        x = prevX;
+        y = prevY;
+    }
 }

@@ -34,6 +34,9 @@ void createNarrowPathMaze() {
     setWall(2, 0, 2);
     setWall(3, 0, 2);
 
+    // Sackgasse
+    //setWall(3, 0, 1);
+
     // Rechte Wände setzen (trennt Spalten 3 und 4)
     setWall(4, 1, 3);
     setWall(4, 2, 3);
