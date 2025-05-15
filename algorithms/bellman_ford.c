@@ -10,10 +10,11 @@ void updateBellmanFord() {
                     for (int dir = 0; dir < 4; dir++) {
                         int nx = x, ny = y;
 
-                        if (dir == 0 && y > 0 && !hasWall(x, y, 0)) ny--;  // Norden
-                        if (dir == 1 && x < MAZE_SIZE - 1 && !hasWall(x, y, 1)) nx++;  // Osten
-                        if (dir == 2 && y < MAZE_SIZE - 1 && !hasWall(x, y, 2)) ny++;  // Süden
-                        if (dir == 3 && x > 0 && !hasWall(x, y, 3)) nx--;  // Westen
+                        if (dir == 0 && y > 0 && !hasWall(x, y, 0)) ny--;
+                        else if (dir == 1 && x < MAZE_SIZE - 1 && !hasWall(x, y, 1)) nx++;
+                        else if (dir == 2 && y < MAZE_SIZE - 1 && !hasWall(x, y, 2)) ny++;
+                        else if (dir == 3 && x > 0 && !hasWall(x, y, 3)) nx--;
+                        else continue; // ungültige Bewegung → überspringen
 
                         if (cost[nx][ny] > cost[x][y] + 1) {  // Aktualisierung prüfen
                             cost[nx][ny] = cost[x][y] + 1;
@@ -43,7 +44,7 @@ void runBellmanFord(Mouse* mouse) {
     do {
         scanSurroundings(mouse); // Umgebung scannen
         if (mazeUpdated) {  // Falls neue Wände erkannt wurden
-            updateBellmanFord();  // Bellman-Ford neu berechnen
+            initBellmanFord();
             mazeUpdated = 0;
         }
 

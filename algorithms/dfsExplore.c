@@ -8,12 +8,13 @@ Stack stack;
 int labyrinthErforscht() {
     for (int x = 0; x < MAZE_SIZE; x++) {
         for (int y = 0; y < MAZE_SIZE; y++) {
-            if (cost[x][y] == 0) {
-                return 1;  // Es gibt noch unerforschte Felder
+            // Wenn das Feld zugänglich ist (mindestens eine offene Richtung), aber nicht besucht
+            if (cost[x][y] == 0 && countOpenPaths(x, y) > 0) {
+                return 1;
             }
         }
     }
-    return 0;  // Alle Felder wurden erforscht
+    return 0;
 }
 
 
@@ -21,8 +22,12 @@ void runDFS_Explore(Mouse* mouse) {
     initStack(&stack);
 
     // **Setze das Startfeld als besucht und in den Stack**
-    cost[mouse->x][mouse->y] = 1;
-    push(&stack, mouse->x, mouse->y);
+    int startOpenPaths = countOpenPaths(mouse->x, mouse->y);
+    if (startOpenPaths == 1) {
+        cost[mouse->x][mouse->y] = 2;  // vollständig erkundet
+    } else {
+        cost[mouse->x][mouse->y] = 1;  // nur besucht
+    }
 
     do {
         scanSurroundings(mouse);
@@ -46,9 +51,9 @@ void runDFS_Explore(Mouse* mouse) {
                 if (cost[nx][ny] == 0) {  
                     if (i == 0) turnLeft(mouse);
                     else if (i == 2) turnRight(mouse);
+                    push(&stack, mouse->x, mouse->y);
                     moveForward(mouse);
                     cost[mouse->x][mouse->y] = 1;  // Markiere als besucht
-                    push(&stack, mouse->x, mouse->y);
                     moved = 1;
                     break;
                 }

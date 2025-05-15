@@ -4,6 +4,7 @@
 #include "../maze.h"
 #include "../mouse.h"
 #include "../utils/stack.h"
+#include "../utils/queue.h"
 
 void runDijkstra(Mouse* mouse);
 void runAstar(Mouse* mouse);
@@ -30,8 +31,8 @@ int countOpenPaths(int x, int y);
 void getNextPosition(int *x, int *y, int dir);
 int getDirectionToTarget(Mouse* mouse, int targetX, int targetY);
 void reconstructPath(Stack* stack, int goalX, int goalY);
-
-//dfs
 void performBacktracking(Mouse* mouse);
+void setCostMatrixMax();
+void setCostMatrixGoals(Queue* queue);
 
 #endif

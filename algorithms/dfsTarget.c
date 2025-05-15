@@ -11,37 +11,46 @@ void performBacktracking(Mouse* mouse) {
         pop(&stack, &prevX, &prevY);
         //printf("Backtracking von (%d, %d) nach (%d, %d)\n", mouse->x, mouse->y, prevX, prevY);
 
-        // **Setze das aktuelle Feld als vollständig erkundet**
-        cost[mouse->x][mouse->y] = 2;
-
-        // **Drehe zur richtigen Richtung zurück**
+        // Drehe zur Zielrichtung und gehe einen Schritt zurück
         int backDir = getDirectionToTarget(mouse, prevX, prevY);
         turnToDirection(mouse, backDir);
+        moveForward(mouse);  // Jetzt steht Maus auf prevX,prevY
 
-        // **Falls vor uns ein unerforschter Pfad (`1`) ist, stoppe das Backtracking hier**
-        int nx = mouse->x, ny = mouse->y;
-        getNextPosition(&nx, &ny, mouse->dir);
-        if (cost[nx][ny] == 1) {
-            moveForward(mouse);
-            return;  // **Backtracking beendet – `runDFS()` übernimmt**
+        // Prüfe: gibt es hier noch offene Wege?
+        for (int d = 0; d < 4; d++) {
+            int tx = mouse->x, ty = mouse->y;
+            if (d == 0 && !hasWall(tx, ty, 0)) ty--;
+            else if (d == 1 && !hasWall(tx, ty, 1)) tx++;
+            else if (d == 2 && !hasWall(tx, ty, 2)) ty++;
+            else if (d == 3 && !hasWall(tx, ty, 3)) tx--;
+            else continue;
+
+            if (tx >= 0 && tx < MAZE_SIZE && ty >= 0 && ty < MAZE_SIZE &&
+                cost[tx][ty] == 0) {
+                // wir haben ein unerforschtes Nachbarfeld → stoppe hier
+                return;
+            }
         }
 
-        // **Falls kein neuer Weg vor uns ist, weiter zurückgehen**
-        moveForward(mouse);
+        // Wenn nichts offen: setze dieses Feld als erledigt und weiter zurück
+        cost[mouse->x][mouse->y] = 2;
     }
 
-    // **Falls der Stack leer ist, Notfall-Stopp**
     printf("Fehler: Stack ist leer, aber Backtracking nötig! Notfall-Stopp.\n");
     exit(1);
 }
 
 
+
 void runDFS_Target(Mouse* mouse) {
     initStack(&stack);
 
-    // **Setze das Startfeld als besucht und in den Stack**
-    cost[mouse->x][mouse->y] = 1;
-    push(&stack, mouse->x, mouse->y);
+    int startOpenPaths = countOpenPaths(mouse->x, mouse->y);
+    if (startOpenPaths == 1) {
+        cost[mouse->x][mouse->y] = 2;  // vollständig erkundet
+    } else {
+        cost[mouse->x][mouse->y] = 1;  // nur besucht
+    }
 
     do {
         scanSurroundings(mouse);
@@ -67,9 +76,9 @@ void runDFS_Target(Mouse* mouse) {
                 if (cost[nx][ny] == 0) {  
                     if (i == 0) turnLeft(mouse);
                     else if (i == 2) turnRight(mouse);
+                    push(&stack, mouse->x, mouse->y);
                     moveForward(mouse);
                     cost[mouse->x][mouse->y] = 1;  // Markiere als besucht
-                    push(&stack, mouse->x, mouse->y);
                     moved = 1;
                     break;
                 }
@@ -82,7 +91,7 @@ void runDFS_Target(Mouse* mouse) {
             performBacktracking(mouse);
         }
 
-        printCostMatrix(); //zum Testen
+        //printCostMatrix(); //zum Testen
 
     } while (!(mouse->x == MAZE_SIZE / 2 && mouse->y == MAZE_SIZE / 2) &&
              !(mouse->x == (MAZE_SIZE / 2) - 1 && mouse->y == MAZE_SIZE / 2) &&

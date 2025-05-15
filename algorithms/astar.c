@@ -64,7 +64,6 @@ void runAstar(Mouse* mouse) {
         scanSurroundings(mouse);
 
         if (mazeUpdated) {
-            printf("Maze wurde aktualisiert – Berechne A* erneut...\n");
             initAStar(mouse->x, mouse->y);
             updateAStar();
             reconstructPath(&stackASern, goalX, goalY);

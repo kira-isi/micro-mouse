@@ -1,6 +1,8 @@
 #include "algorithms.h"
 #include <stdio.h>
 
+#include "../test.h"
+
 /// Datei für gemeinsam genutze Funktionen ///
 
 //Kostenmatrix wird hier gespeichert
@@ -41,20 +43,26 @@ void moveToLowestCost(Mouse* mouse) {
 
     for (int dir = 0; dir < 4; dir++) {
         int nx = x, ny = y;
-        if (dir == 0 && y > 0 && !hasWall(x, y, 0)) ny--;  // Norden
-        if (dir == 1 && x < MAZE_SIZE - 1 && !hasWall(x, y, 1)) nx++;  // Osten
-        if (dir == 2 && y < MAZE_SIZE - 1 && !hasWall(x, y, 2)) ny++;  // Süden
-        if (dir == 3 && x > 0 && !hasWall(x, y, 3)) nx--;  // Westen
 
-        if (cost[nx][ny] < minCost) {
+        // Richtung prüfen und gültige Nachbarzelle berechnen
+        if (dir == 0 && y > 0 && !hasWall(x, y, 0)) ny--;
+        else if (dir == 1 && x < MAZE_SIZE - 1 && !hasWall(x, y, 1)) nx++;
+        else if (dir == 2 && y < MAZE_SIZE - 1 && !hasWall(x, y, 2)) ny++;
+        else if (dir == 3 && x > 0 && !hasWall(x, y, 3)) nx--;
+        else continue; // keine gültige Bewegung → nächste Richtung
+
+        if (cost[nx][ny] < cost[x][y] && cost[nx][ny] < minCost) {
             minCost = cost[nx][ny];
             minDir = dir;
         }
+        
     }
-
-    turnToDirection(mouse, minDir);
-    moveForward(mouse);
+    if (minDir != -1) {
+        turnToDirection(mouse, minDir);
+        moveForward(mouse);
+    } else { printCostMatrix(); printf("Keine gueltige Richtung mit niedrigeren Kosten von (%d, %d)\n", x, y); }
 }
+
 
 void turnToDirection(Mouse* mouse, int targetDir) {
     if (mouse->dir == targetDir) {
@@ -118,4 +126,20 @@ void reconstructPath(Stack* stack, int goalX, int goalY) {
         x = prevX;
         y = prevY;
     }
+}
+
+void setCostMatrixMax(){
+    for (int x = 0; x < MAZE_SIZE; x++) {
+        for (int y = 0; y < MAZE_SIZE; y++) {
+            cost[x][y] = MAX_COST;  // Anfangswert
+        }
+    }
+}
+
+void setCostMatrixGoals(Queue* queue){
+    int mid = MAZE_SIZE / 2;
+    enqueue(queue, mid, mid);
+    enqueue(queue, mid - 1, mid);
+    enqueue(queue, mid, mid - 1);
+    enqueue(queue, mid - 1, mid - 1);
 }

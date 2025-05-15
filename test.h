@@ -7,6 +7,7 @@
 void createEmptyMaze();
 void createBlockedCenterMaze();
 void createNarrowPathMaze();
+void createTestMaze();
 void printMaze();
 
 #endif

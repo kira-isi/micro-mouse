@@ -1,6 +1,7 @@
 #include "mouse.h"
 #include "maze.h"
 #include <stdio.h>
+#include "mockSensors.h"
 
 int mazeUpdated = 0;
 
@@ -50,6 +51,8 @@ void turnRight(Mouse* mouse) {
 
 // Erkennt neue Wände in der Umgebung und aktualisiert das Labyrinth
 void scanSurroundings(Mouse* mouse) {
+    //scanSurroundingsMock(mouse);
+
     int x = mouse->x;
     int y = mouse->y;
 

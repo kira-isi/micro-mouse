@@ -29,6 +29,7 @@ void updateDijkstra() {
 
     while (!isQueueEmpty(&queue)) {
         int x, y;
+        //printQueue(&queue);
         dequeue(&queue, &x, &y);
 
         for (int i = 0; i < 4; i++) {
@@ -79,6 +80,7 @@ void runDijkstra(Mouse* mouse) {
         }
 
         // **Nächstes Feld aus dem Stack holen**
+        //printStack(&stackDijkstra);
         int nextX, nextY;
         pop(&stackDijkstra, &nextX, &nextY);
 
